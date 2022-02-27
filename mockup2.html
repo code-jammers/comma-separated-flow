@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Comma-separated flow</title>
+    <style type="text/css">
+      body { padding:0; margin:0; }
+      #tblcont { padding:10px; }
+      table,tr,td { padding:0; margin: 0; /*border:1px solid black;*/ width:100%; height:100%; border-collapse: collapse; }
+      td { padding-top: 2px; }
+      .mini td { border:1px solid white; width: 50px; }
+      #footer { position:fixed; bottom: 40px; right:40px;}
+      #button-minus, #button-plus { padding:0px; margin:0;line-height:0;font-size:40px; font-family:'Monospace'; width:40px; height:40px; border:1px solid #544; background-color:#007E97; color:#ccd; cursor:pointer;}
+      #button-minus { border-top-left-radius:10px; border-bottom-left-radius:10px; }
+      #button-plus { border-top-right-radius:10px; border-bottom-right-radius:10px; }
+      #button-percent { padding:0px; margin:0; line-height:0; font-size:40px; font-family:'Monospace'; width:120px; height:40px; border:1px solid #544; background-color:#007E97; color:#ccd; cursor:pointer; }
+      #header-overlay { position: absolute; z-index:0; width:100%; height:80px; left:0px;top:0px;background-color: #007E97; }
+      div .scalable {
+      padding:0;
+      margin:0;
+      }
+      #content{ padding:0; margin:0; }
+      body {padding:0; margin:0; }
+      a.ndlink { color:lightblue; text-decoration:none; cursor:pointer; }
+      .nd { overflow: auto/*scroll*/; /*display: inline-block;*/ padding:"1px";/*table-layout:fixed!important;*/ /*white-space: nowrap;*/  /*display:flex;flex-direction:row;*/ display:inline; white-space:nowrap;  }
+      .nd input { /*width:5px;*/width:8px;display:inline-block;/*max-width:32px;*/ }
+      .nd table {width:1px;height:1px;}
+      
+    </style>
+    <script src="mockup2.js">
+    </script>
+  </head>
+  <body>
+    <div id="header-overlay" class="vert-scalable collapsible"></div>
+    <div class="pos-scalable" style="left:0px;width:100%;top:80px;position:relative"><button id="button-toggle-nav" style="border-radius:0;width:100%;text-align:left;cursor:pointer;" onclick="toggle_nav()">^^^ Collapse ^^^</button></div>
+    <div id="content"></div>
+    <div id="footer"><button id="button-minus" onclick="scaleDown()">-</button><button id="button-percent" onclick="scaleNormal()">100%</button><button id="button-plus" onclick="scaleUp()">+</button></div>
+  </body>
+</html>
