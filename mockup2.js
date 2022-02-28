@@ -5,6 +5,8 @@ gNODE_ID=1;
 gTABLES={};
 gTABLE_ROWS={};
 
+gEX_IN_ND=null;
+gEX_JN_ND=null;
 
 function input_oninput(inp) {
     inp.style.width = (Math.min(inp.value.length,44)) + "ch";
@@ -92,6 +94,7 @@ function build_csv_node() {
     //div.id = "dragg-el";
     div.id="Node_"+gNODE_ID++;//"NodeA";
     div.style.cursor="copy"; // move
+    if (div.id == 'Node_1') div.style.cursor="default";
     div.style.color="white";
     div.style.fontFamily="Monospace";
     div.style.fontSize="11px";
@@ -100,6 +103,7 @@ function build_csv_node() {
     div.style.paddingTop="3px";
     div.style.margin="0";
     document.getElementById("content").appendChild(div);
+    if (div.id == 'Node_4') { div.style.cursor='not-allowed'; return; }//no event listener
     div
     /*var drag = document.createElement("button");
     drag.style.fontSize="12px";
@@ -117,15 +121,32 @@ function build_csv_node() {
 
         function mouseMove(e) {
             div.style.cursor = "move";
-            /*drel*/div.style.top =( (e.clientY-offsetY) /*- parseInt(drelsty.height)*/  )+'px';            
+            var y = (e.clientY-offsetY);
+            var x = (e.clientX  - offsetX);
+            /*drel*/div.style.top =( y /*- parseInt(drelsty.height)*/  )+'px';            
 
-            /*drel*/div.style.left = ((e.clientX  - offsetX) /*- parseInt(drelsty.width)*/)+'px';
+            /*drel*/div.style.left = (x /*- parseInt(drelsty.width)*/)+'px';
+
+            if (div.id == 'Node_1') {
+                //(e.clientX-offsetX)+'px';
+                var path = document.getElementById("ex1");
+                var inNdSty=window.getComputedStyle(gEX_IN_ND);
+                var x2=parseInt(inNdSty.left.replace("px",""));
+                var y2=parseInt(inNdSty.top.replace("px",""));
+                path.setAttribute('d', 'M '+x2+' '+y2+' Q '+y2+' '+x2+' '+x+' '+y+'');//'M 150 150 q 150 -150 300 0');
+            } else if (div.id == 'Node_3') {
+                var path = document.getElementById("ex1");
+                var jnNdSty=window.getComputedStyle(gEX_JN_ND);
+                var x2=parseInt(jnNdSty.left.replace("px",""));
+                var y2=parseInt(jnNdSty.top.replace("px",""));
+                path.setAttribute('d', 'M '+x+' '+y+' Q '+y+' '+x+' '+x2+' '+y2+'');//'M 150 150 q 150 -150 300 0');
+            }
         }
         
         function mouseUp() {
             window.removeEventListener('mousemove', mouseMove);
             window.removeEventListener('mouseup', mouseUp);
-            if (!copied) {
+            if (!copied && div.id != 'Node_1') {
                 div.innerHTML += "<a data='"+div.id+"' class='ndlink' onclick='nd_new_row(\""+div.id+"\")'>Row++</a>";
                 build_csv_node();
             }
@@ -144,6 +165,60 @@ div.appendChild(drag);
 }
 
 window.addEventListener("DOMContentLoaded", function() {
+    /* Example Join Node */
+    var joinId=gNODE_ID;
+    build_csv_node();
+    var joinNd = document.getElementById("Node_"+joinId);
+    joinNd.style.left = "200px";
+    joinNd.style.top = "300px";
+    joinNd.style.backgroundColor = "purple";
+    var tblHtml="<table id='"+joinNd.id+"_tbl"+"'><tbody><tr><td><input type='text' oninput='input_oninput(this)' value='0'></td><td><input type='text' oninput='input_oninput(this)' value='1'></td></tr><tr><td><input type='text' oninput='input_oninput(this)' value='0'></td><td><input type='text' oninput='input_oninput(this)' value='1'></td></tr></tbody></table>";
+    var colpp="<br/><a href='#' class='ndlink' onclick='nd_new_col(\""+joinNd.id+"\")'>Col++</a>"
+    joinNd.innerHTML = "Join<br/>" + "<a data='"+joinNd.id+"' class='ndlink' onclick='nd_new_row(\""+joinNd.id+"\")'>Row++</a>" + colpp + tblHtml;
+    var tbl=document.getElementById(joinNd.id+"_tbl");
+    //console.log(tbl.firstChild.firstChild);
+    gTABLES[joinNd.id+"_tbl"]=tbl;
+    gTABLE_ROWS[joinNd.id+"_tbl_1"]=tbl.firstChild.firstChild;
+    gTABLE_ROWS[joinNd.id+"_tbl_2"]=tbl.firstChild.children[1];
+
+    /* Example Input Node */
+    var in1Id=gNODE_ID;
+    build_csv_node();
+    var ex1Nd = document.getElementById("Node_"+in1Id);
+    ex1Nd.style.left = "150px";
+    ex1Nd.style.top = "150px";
+
+    var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    var path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+    svg.setAttribute('width', '80000px');
+    svg.setAttribute('height', '80000px');
+    path.setAttribute('d', 'M 150 450 Q 450 150 200 300');//'M 150 150 q 150 -150 300 0');
+    path.setAttribute('stroke-width', '1');
+    path.setAttribute('stroke', 'black');
+    path.setAttribute('fill', 'none');
+    path.id="ex1";
+    svg.appendChild(path);
+    document.body.appendChild(svg);
+
+    /* Example Input Node */
+    var in2Id=gNODE_ID;
+    build_csv_node();
+    var ex2Nd = document.getElementById("Node_"+in2Id);
+    ex2Nd.style.left = "150px";
+    ex2Nd.style.top = "450px";
+
+    gEX_IN_ND=ex2Nd;
+    gEX_JN_ND=joinNd;
+
+    var jn=gNODE_ID;
+    //console.log(jn);
+    build_csv_node();
+    var jnN=document.getElementById('Node_'+jn);
+    jnN.style.backgroundColor='purple';
+    jnN.innerHTML='Join';
+    //jnN.removeEventListener('mousedown');
+    jnN.style.left='100px';
+    
     build_csv_node();
 });
 
@@ -216,6 +291,14 @@ function scale(percentLarger) {
     
     document.getElementById("button-percent").innerHTML=gPERCENT+"%";
     toggle_visibility();
+    var jnNdSty=window.getComputedStyle(gEX_JN_ND);
+    var x = parseInt(jnNdSty.left.replace("px",""));
+    var y = parseInt(jnNdSty.top.replace("px",""));
+    var path = document.getElementById("ex1");
+    var inNdSty=window.getComputedStyle(gEX_IN_ND);
+    var x2=parseInt(inNdSty.left.replace("px",""));
+    var y2=parseInt(inNdSty.top.replace("px",""));
+    path.setAttribute('d', 'M '+x2+' '+y2+' Q '+y2+' '+x2+' '+x+' '+y+'');//'M 150 150 q 150 -150 300 0');
 }
 
 function scaleDown() {
