@@ -131,15 +131,20 @@ function build_csv_node() {
                 //(e.clientX-offsetX)+'px';
                 var path = document.getElementById("ex1");
                 var inNdSty=window.getComputedStyle(gEX_IN_ND);
-                var x2=parseInt(inNdSty.left.replace("px",""));
-                var y2=parseInt(inNdSty.top.replace("px",""));
-                path.setAttribute('d', 'M '+x2+' '+y2+' Q '+y2+' '+x2+' '+x+' '+y+'');//'M 150 150 q 150 -150 300 0');
+		var leftNdPos ={};
+                leftNdPos.x=parseInt(inNdSty.left.replace("px",""));
+                leftNdPos.y=parseInt(inNdSty.top.replace("px",""));
+		var rightNdPos = {x: x, y: y};
+		path_set_attr(path, leftNdPos, rightNdPos);
+		
             } else if (div.id == 'Node_3') {
                 var path = document.getElementById("ex1");
                 var jnNdSty=window.getComputedStyle(gEX_JN_ND);
-                var x2=parseInt(jnNdSty.left.replace("px",""));
-                var y2=parseInt(jnNdSty.top.replace("px",""));
-                path.setAttribute('d', 'M '+x+' '+y+' Q '+y+' '+x+' '+x2+' '+y2+'');//'M 150 150 q 150 -150 300 0');
+		var rightNdPos = {};
+                rightNdPos.x=parseInt(jnNdSty.left.replace("px",""));
+                rightNdPos.y=parseInt(jnNdSty.top.replace("px",""));
+		var leftNdPos = {x: x, y: y};
+		path_set_attr(path, leftNdPos, rightNdPos);
             }
         }
         
@@ -192,7 +197,8 @@ window.addEventListener("DOMContentLoaded", function() {
     var path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
     svg.setAttribute('width', '80000px');
     svg.setAttribute('height', '80000px');
-    path.setAttribute('d', 'M 150 450 Q 450 150 200 300');//'M 150 150 q 150 -150 300 0');
+    // (210 + 200 )/2
+    path.setAttribute('d', 'M 210 465 Q 205 383 200 300');//setAttribute('d', 'M 210 465 C 200 300 180 320 190 310');//('d', 'M 150 450 Q 450 150 200 300');//'M 150 150 q 150 -150 300 0');
     path.setAttribute('stroke-width', '1');
     path.setAttribute('stroke', 'black');
     path.setAttribute('fill', 'none');
@@ -222,6 +228,30 @@ window.addEventListener("DOMContentLoaded", function() {
     build_csv_node();
 });
 
+function template_node_dimensions() {
+    var templateNode = document.getElementById("Node_"+(gNODE_ID-1));
+    var templ_sty = window.getComputedStyle(templateNode);
+    var w = parseInt(templ_sty.width.replace("px",""));
+    var h = parseInt(templ_sty.height.replace("px",""));
+    return {w: w, h:h};
+}
+
+function path_set_attr(path, leftNdPos, rightNdPos) {
+    var templ_w_h=template_node_dimensions();
+    rightNdPos.y += ((templ_w_h.h / 2.0) -4/*padding*/);
+    leftNdPos.x += ((templ_w_h.w) +4/*padding*/);
+    leftNdPos.y += ((templ_w_h.h / 2.0) -4/*padding*/ -10/*??*/);
+
+    var cpoffset = 0; // control-point offset
+    if ((rightNdPos.y - leftNdPos.y) > 8) cpoffset = 20;
+    if ((leftNdPos.y - rightNdPos.y) > 8) cpoffset = -20;
+    
+    var cpx = (leftNdPos.x + rightNdPos.x)/2; // control-point x
+    var cpy = (leftNdPos.y + rightNdPos.y)/2 + cpoffset;
+    path.setAttribute('d', 'M '+leftNdPos.x+' '+leftNdPos.y+' Q '+cpx+' '+cpy+' '+rightNdPos.x+' '+rightNdPos.y+'');
+    //path.setAttribute('d', 'M '+leftNdPos.x+' '+leftNdPos.y+' Q '+leftNdPos.y+' '+leftNdPos.x+' '+rightNdPos.x+' '+rightNdPos.y+'');
+}
+
 function toggle_visibility() {
     var bm = document.getElementById("button-minus");
     var bp = document.getElementById("button-plus");
@@ -243,10 +273,10 @@ function scale(percentLarger) {
     //    scale = 
     //}
     console.log(scale);
-    var templateNode = document.getElementById("Node_"+(gNODE_ID-1));
-    var templ_sty=window.getComputedStyle(templateNode);
-    var templ_w = parseInt(templ_sty.width.replace("px",""));
-    var templ_h = parseInt(templ_sty.height.replace("px",""));
+
+    var templ_w_h = template_node_dimensions();
+    var templ_w = templ_w_h.w;
+    var templ_h = templ_w_h.h;
     for (var i=0; i<els.length; i++) {
         var compsty = window.getComputedStyle(els[i]);
 
@@ -298,7 +328,9 @@ function scale(percentLarger) {
     var inNdSty=window.getComputedStyle(gEX_IN_ND);
     var x2=parseInt(inNdSty.left.replace("px",""));
     var y2=parseInt(inNdSty.top.replace("px",""));
-    path.setAttribute('d', 'M '+x2+' '+y2+' Q '+y2+' '+x2+' '+x+' '+y+'');//'M 150 150 q 150 -150 300 0');
+    var leftNdPos = {x: x2, y: y2};
+    var rightNdPos= {x: x, y: y};
+    path_set_attr(path, leftNdPos, rightNdPos);
 }
 
 function scaleDown() {
